@@ -1,0 +1,4 @@
+.env
+gin-bin.exe
+/tmp
+/public/uploads
