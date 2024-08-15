@@ -12,12 +12,12 @@ var (
 )
 
 func Routes(router *gin.RouterGroup) {
-	authorized := router.Group("/")
+	authorized := router.Group("")
 	authorized.Use(middleware.Auth())
 	{
-		authorized.GET("/", wardController.find)
+		authorized.GET("", wardController.find)
 		authorized.GET("/:id", wardController.findById)
-		authorized.POST("/", wardController.create)
+		authorized.POST("", wardController.create)
 		authorized.PUT("/:id", wardController.update)
 		authorized.DELETE("/:id", wardController.delete)
 	}

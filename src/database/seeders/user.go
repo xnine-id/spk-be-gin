@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/amuhajirs/gin-gorm/src/database"
-	"github.com/amuhajirs/gin-gorm/src/models"
 	"github.com/amuhajirs/gin-gorm/src/helpers"
+	"github.com/amuhajirs/gin-gorm/src/models"
 	"github.com/brianvoe/gofakeit/v7"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,7 +20,7 @@ func UserSeeder() {
 
 	users = append(users, &models.User{
 		Name:     "Developer",
-		Email:    "dev@gmail.com",
+		Username: "dev",
 		Phone:    helpers.PointerTo("08" + gofakeit.Numerify("##########")),
 		Password: string(password),
 		Avatar:   avatar,
@@ -29,7 +29,7 @@ func UserSeeder() {
 	for i := 0; i < 9; i++ {
 		users = append(users, &models.User{
 			Name:     gofakeit.Name(),
-			Email:    gofakeit.Email(),
+			Username: gofakeit.Username(),
 			Phone:    helpers.PointerTo("08" + gofakeit.Numerify("##########")),
 			Password: string(password),
 			Avatar:   avatar,

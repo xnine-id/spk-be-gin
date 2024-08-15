@@ -2,6 +2,7 @@ package config
 
 var Locale = map[string]string{
 	"name":           "Nama",
+	"username":       "Nama Pengguna",
 	"phone":          "Nomor Telepon",
 	"password":       "Kata Sandi",
 	"old_password":   "Kata Sandi Lama",

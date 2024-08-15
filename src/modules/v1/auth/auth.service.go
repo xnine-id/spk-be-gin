@@ -34,15 +34,15 @@ func NewService(repo Repository) Service {
 func (s *service) login(body *loginBody) (*models.User, *userToken, error) {
 	var user models.User
 
-	if err := s.repo.findByEmail(&user, body.Email); err != nil {
+	if err := s.repo.findByUsername(&user, body.Username); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, customerror.New("Email atau password salah", 400)
+			return nil, nil, customerror.New("Nama pengguna atau kata sandi salah", 400)
 		}
 		return nil, nil, customerror.New("Terjadi kesalahan saat mengambil data", 500)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
-		return nil, nil, customerror.New("Email atau password salah", 400)
+		return nil, nil, customerror.New("Nama pengguna atau kata sandi salah", 400)
 	}
 
 	token := s.generateUserToken(*user.Id)
@@ -69,9 +69,9 @@ func (s *service) refresh(body *refreshBody) (*userToken, error) {
 		return nil, customerror.New("Pengguna tidak ditemukan", 400)
 	}
 
-	if time.Since(refreshToken.LastUsed) < config.App.Auth.AccessTokenExpiresIn {
-		return nil, customerror.New("Belum bisa refresh token", 400)
-	}
+	// if time.Since(refreshToken.LastUsed) < config.App.Auth.AccessTokenExpiresIn {
+	// 	return nil, customerror.New("Belum bisa refresh token", 400)
+	// }
 
 	if time.Since(refreshToken.LastUsed) > config.App.Auth.RefreshTokenExpiresIn {
 		go s.repo.deleteTokenByToken(refreshToken.Token)
@@ -104,6 +104,8 @@ func (s *service) generateUserToken(id uint) *userToken {
 
 	token.RefreshToken = helpers.RandomString()
 	token.Type = "Bearer"
+	token.ExpiresIn = config.App.Auth.AccessTokenExpiresIn / time.Second
+	token.RefreshTokenExpiresIn = config.App.Auth.RefreshTokenExpiresIn / time.Second
 
 	return &token
 }

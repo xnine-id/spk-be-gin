@@ -7,7 +7,7 @@ import (
 )
 
 type Repository interface {
-	findByEmail(user *models.User, email string) error
+	findByUsername(user *models.User, username string) error
 	findById(user *models.User, id uint) error
 
 	findToken(model *models.Token, token string) error
@@ -22,8 +22,8 @@ func NewRepository() Repository {
 	return &repository{}
 }
 
-func (r *repository) findByEmail(user *models.User, email string) error {
-	return database.DB.Where("email = ?", email).First(user).Error
+func (r *repository) findByUsername(user *models.User, username string) error {
+	return database.DB.Where("username = ?", username).First(user).Error
 }
 
 func (r *repository) findById(user *models.User, id uint) error {

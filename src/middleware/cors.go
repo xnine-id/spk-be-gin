@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -25,6 +26,7 @@ func Cors() gin.HandlerFunc {
 		ctx.Writer.Header().Set("Access-Control-Allow-Methods", strings.Join(config.App.Cors.AllowMethod, ", "))
 
 		if ctx.Request.Method == "OPTIONS" {
+			fmt.Println(*allowedOrigin, ctx.Request.URL.Path, origin)
 			ctx.AbortWithStatus(204)
 			return
 		}
