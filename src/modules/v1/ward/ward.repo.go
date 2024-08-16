@@ -22,7 +22,7 @@ func NewRepository() Repository {
 }
 
 func (r *repository) find(result *pagination.Pagination[models.Ward], qs *findWardQs) error {
-	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%").Preload("Subdistrict")
+	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%").Preload("Subdistrict.Regency.Province")
 
 	return result.Execute(&pagination.Params{
 		Query:     q,

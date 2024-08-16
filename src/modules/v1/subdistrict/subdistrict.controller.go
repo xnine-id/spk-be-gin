@@ -1,8 +1,8 @@
 package subdistrict
 
 import (
-	"github.com/amuhajirs/gin-gorm/src/helpers"
 	"github.com/amuhajirs/gin-gorm/src/helpers/response"
+	"github.com/amuhajirs/gin-gorm/src/helpers/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,12 +55,12 @@ func (c *controller) findById(ctx *gin.Context) {
 func (c *controller) create(ctx *gin.Context) {
 	var body subdistrictBody
 
-	if isValid := helpers.Bind(ctx, &body); !isValid {
+	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
 	}
 
 	data, err := c.service.create(&body)
-	
+
 	if err != nil {
 		response.ServiceError(ctx, err)
 		return
@@ -68,7 +68,7 @@ func (c *controller) create(ctx *gin.Context) {
 
 	ctx.JSON(200, gin.H{
 		"message": "Kecamatan berhasil ditambahkan",
-		"data": data,
+		"data":    data,
 	})
 }
 
@@ -76,7 +76,7 @@ func (c *controller) update(ctx *gin.Context) {
 	var body subdistrictBody
 	id := ctx.Param("id")
 
-	if isValid := helpers.Bind(ctx, &body); !isValid {
+	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
 	}
 

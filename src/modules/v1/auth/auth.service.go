@@ -88,7 +88,10 @@ func (s *service) refresh(body *refreshBody) (*userToken, error) {
 }
 
 func (s *service) logout(body *refreshBody) error {
-	return s.repo.deleteTokenByToken(body.RefreshToken)
+	if err := s.repo.deleteTokenByToken(body.RefreshToken); err != nil {
+		return customerror.GormError(err, "Token")
+	}
+	return nil
 }
 
 func (s *service) generateUserToken(id uint) *userToken {

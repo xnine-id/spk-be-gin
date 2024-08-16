@@ -2,6 +2,8 @@ package upload
 
 import (
 	"fmt"
+	"io"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,8 +21,19 @@ type FileName struct {
 
 type Option struct {
 	Folder      string
-	Filename    string
+	File        *multipart.FileHeader
 	NewFilename string
+}
+
+func New(option *Option) (*FilePath, error) {
+	extracted := ExtractFileName(option.File.Filename)
+	filePath := UploadPath(fmt.Sprintf("%s/%s.%s", option.Folder, option.NewFilename, extracted.Ext))
+
+	if err := saveUploadedFile(option.File, filePath.Path); err != nil {
+		return nil, err
+	}
+
+	return filePath, nil
 }
 
 func ExtractFileName(filename string) *FileName {
@@ -50,7 +63,23 @@ func UploadPath(filename string) *FilePath {
 	}
 }
 
-func New(option *Option) *FilePath {
-	extracted := ExtractFileName(option.Filename)
-	return UploadPath(fmt.Sprintf("%s/%s.%s", option.Folder, option.NewFilename, extracted.Ext))
+func saveUploadedFile(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	if err = os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
+		return err
+	}
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+	return err
 }

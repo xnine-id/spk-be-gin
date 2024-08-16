@@ -43,7 +43,13 @@ func (r *repository) updateToken(data *models.Token) error {
 }
 
 func (r *repository) deleteTokenByToken(token string) error {
-	if affected := database.DB.Unscoped().Where("token = ?", token).Delete(&models.Token{}).RowsAffected; affected == 0 {
+	tx := database.DB.Unscoped().Where("token = ?", token).Delete(&models.Token{})
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
 		return customerror.New("Token tidak ditemukan", 404)
 	}
 

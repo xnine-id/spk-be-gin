@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/amuhajirs/gin-gorm/src/config"
 	"github.com/amuhajirs/gin-gorm/src/database"
-	"github.com/amuhajirs/gin-gorm/src/helpers"
+	"github.com/amuhajirs/gin-gorm/src/helpers/validation"
 	"github.com/amuhajirs/gin-gorm/src/middleware"
 	"github.com/amuhajirs/gin-gorm/src/routes"
 	"github.com/gin-gonic/gin"
@@ -23,7 +23,7 @@ func main() {
 	router.Use(middleware.RateLimiter())
 	router.Use(middleware.Gzip())
 
-	customValidator := helpers.NewCustomValidator()
+	customValidator := validation.NewCustomValidator()
 	binding.Validator = customValidator
 
 	router.Static("/public", "./public")

@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/amuhajirs/gin-gorm/src/helpers"
 	"github.com/amuhajirs/gin-gorm/src/helpers/response"
+	"github.com/amuhajirs/gin-gorm/src/helpers/validation"
 	"github.com/amuhajirs/gin-gorm/src/models"
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +27,7 @@ func NewController(service Service) Controller {
 func (c *controller) login(ctx *gin.Context) {
 	var body loginBody
 
-	if isValid := helpers.Bind(ctx, &body); !isValid {
+	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
 	}
 
@@ -44,7 +44,7 @@ func (c *controller) login(ctx *gin.Context) {
 func (c *controller) refresh(ctx *gin.Context) {
 	var body refreshBody
 
-	if isValid := helpers.Bind(ctx, &body); !isValid {
+	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
 	}
 
@@ -73,7 +73,7 @@ func (c *controller) profile(ctx *gin.Context) {
 func (c *controller) logout(ctx *gin.Context) {
 	var body refreshBody
 
-	if isValid := helpers.Bind(ctx, &body); !isValid {
+	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
 	}
 

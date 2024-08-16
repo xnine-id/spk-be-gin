@@ -31,6 +31,8 @@ func main() {
 		&models.Regency{},
 		&models.Subdistrict{},
 		&models.Ward{},
+		&models.Store{},
+		&models.Sales{},
 	)
 
 	fmt.Println("Tables Created")

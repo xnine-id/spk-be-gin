@@ -1,4 +1,4 @@
-package regency
+package store
 
 import (
 	"github.com/amuhajirs/gin-gorm/src/helpers/response"
@@ -25,7 +25,7 @@ func NewController(service Service) Controller {
 }
 
 func (c *controller) find(ctx *gin.Context) {
-	var qs findRegencyQs
+	var qs findStoreQs
 
 	ctx.ShouldBindQuery(&qs)
 
@@ -53,7 +53,7 @@ func (c *controller) findById(ctx *gin.Context) {
 }
 
 func (c *controller) create(ctx *gin.Context) {
-	var body regencyBody
+	var body storeBody
 
 	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
@@ -67,13 +67,13 @@ func (c *controller) create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, gin.H{
-		"message": "Kabupaten/Kota berhasil ditambahkan",
+		"message": "Toko berhasil ditambahkan",
 		"data":    data,
 	})
 }
 
 func (c *controller) update(ctx *gin.Context) {
-	var body regencyBody
+	var body storeBody
 	id := ctx.Param("id")
 
 	if isValid := validation.Bind(ctx, &body); !isValid {
@@ -85,7 +85,7 @@ func (c *controller) update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"message": "Kabupaten/Kota berhasil diperbarui"})
+	ctx.JSON(200, gin.H{"message": "Toko berhasil diperbarui"})
 }
 
 func (c *controller) delete(ctx *gin.Context) {
@@ -96,5 +96,5 @@ func (c *controller) delete(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"message": "Kabupaten/Kota berhasil dihapus"})
+	ctx.JSON(200, gin.H{"message": "Toko berhasil dihapus"})
 }
