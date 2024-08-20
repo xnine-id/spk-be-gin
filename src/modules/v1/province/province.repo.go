@@ -28,7 +28,7 @@ func (r *repository) find(result *pagination.Pagination[models.Province], qs *fi
 		Query:     q,
 		Page:      qs.Page,
 		Limit:     qs.Limit,
-		Order:     qs.Order,
+		Order:     qs.Sort,
 		Direction: qs.Direction,
 	})
 }

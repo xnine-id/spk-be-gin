@@ -10,5 +10,5 @@ type Token struct {
 	Timestamps
 
 	// Relations
-	User *User `gorm:"foreignKey:user_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user"`
+	User *User `gorm:"foreignKey:user_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
 }

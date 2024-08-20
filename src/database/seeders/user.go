@@ -38,5 +38,5 @@ func UserSeeder() {
 
 	database.DB.Create(users)
 
-	fmt.Println("User Seeder created")
+	fmt.Println("Seeding User Successfully")
 }

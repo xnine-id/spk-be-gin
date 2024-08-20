@@ -1,11 +1,9 @@
 package store
 
+import "github.com/amuhajirs/gin-gorm/src/helpers/pagination"
+
 type findStoreQs struct {
-	Page      string `form:"page"`
-	Search    string `form:"search" mod:"trim"`
-	Limit     string `form:"limit"`
-	Order     string `form:"order"`
-	Direction string `form:"direction"`
+	pagination.QS
 }
 
 type storeBody struct {
@@ -13,5 +11,5 @@ type storeBody struct {
 	Phone   string `binding:"required,numeric" json:"phone" mod:"trim"`
 	Address string `binding:"required" json:"address" mod:"trim"`
 	WardId  uint   `binding:"required" json:"ward_id"`
-	OwnerId uint   `binding:"required" json:"owner_id"`
+	Owner   string `binding:"required" json:"owner"`
 }

@@ -50,7 +50,7 @@ func (s *service) create(body *storeBody) (*models.Store, error) {
 		Phone: body.Phone,
 		Address: body.Address,
 		WardId: body.WardId,
-		OwnerId: body.OwnerId,
+		Owner: body.Owner,
 	}
 
 	if err := s.repo.create(&store); err != nil {
@@ -66,7 +66,7 @@ func (s *service) update(body *storeBody, id string) error {
 		Phone: body.Phone,
 		Address: body.Address,
 		WardId: body.WardId,
-		OwnerId: body.OwnerId,
+		Owner: body.Owner,
 	}
 
 	if err := s.repo.update(&store, id); err != nil {

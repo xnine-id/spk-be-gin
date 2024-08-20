@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/amuhajirs/gin-gorm/src/database"
-	"github.com/amuhajirs/gin-gorm/src/models"
 	"github.com/amuhajirs/gin-gorm/src/helpers"
 )
 
@@ -23,17 +22,4 @@ func main() {
 	database.DB.Migrator().DropTable(_tables...)
 
 	fmt.Println("Tables Dropped")
-
-	database.DB.Migrator().CreateTable(
-		&models.User{},
-		&models.Token{},
-		&models.Province{},
-		&models.Regency{},
-		&models.Subdistrict{},
-		&models.Ward{},
-		&models.Store{},
-		&models.Sales{},
-	)
-
-	fmt.Println("Tables Created")
 }

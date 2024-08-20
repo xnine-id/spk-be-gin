@@ -13,3 +13,7 @@ type Sales struct {
 	// Relations
 	Ward *Ward `gorm:"foreignKey:ward_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"ward,omitempty"`
 }
+
+func (Sales) TableName() string {
+	return "mst_sales"
+}

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/amuhajirs/gin-gorm/src/database"
-	"github.com/amuhajirs/gin-gorm/src/helpers/customerror"
 	"github.com/amuhajirs/gin-gorm/src/models"
 )
 
@@ -43,15 +42,5 @@ func (r *repository) updateToken(data *models.Token) error {
 }
 
 func (r *repository) deleteTokenByToken(token string) error {
-	tx := database.DB.Unscoped().Where("token = ?", token).Delete(&models.Token{})
-
-	if tx.Error != nil {
-		return tx.Error
-	}
-
-	if tx.RowsAffected == 0 {
-		return customerror.New("Token tidak ditemukan", 404)
-	}
-
-	return nil
+	return database.DB.Unscoped().Where("token = ?", token).Delete(&models.Token{}).Error
 }

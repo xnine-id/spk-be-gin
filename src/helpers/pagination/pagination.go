@@ -28,6 +28,14 @@ type Params struct {
 	Direction string
 }
 
+type QS struct {
+	Page      string `form:"page"`
+	Search    string `form:"search" mod:"trim"`
+	Limit     string `form:"limit"`
+	Sort      string `form:"sort"`
+	Direction string `form:"direction"`
+}
+
 func New[T any](model T) *Pagination[T] {
 	return &Pagination[T]{Data: &[]T{}}
 }

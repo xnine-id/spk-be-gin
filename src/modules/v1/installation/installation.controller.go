@@ -1,4 +1,4 @@
-package ward
+package installation
 
 import (
 	"github.com/amuhajirs/gin-gorm/src/helpers/response"
@@ -12,6 +12,7 @@ type Controller interface {
 	create(ctx *gin.Context)
 	update(ctx *gin.Context)
 	delete(ctx *gin.Context)
+	importData(ctx *gin.Context)
 }
 
 type controller struct {
@@ -25,10 +26,10 @@ func NewController(service Service) Controller {
 }
 
 func (c *controller) find(ctx *gin.Context) {
-	var qs findWardQs
+	var qs findInstallationQs
 
 	ctx.ShouldBindQuery(&qs)
-	
+
 	data, err := c.service.find(&qs)
 
 	if err != nil {
@@ -53,7 +54,7 @@ func (c *controller) findById(ctx *gin.Context) {
 }
 
 func (c *controller) create(ctx *gin.Context) {
-	var body wardBody
+	var body installationBody
 
 	if isValid := validation.Bind(ctx, &body); !isValid {
 		return
@@ -67,13 +68,13 @@ func (c *controller) create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, gin.H{
-		"message": "Kelurahan berhasil ditambahkan",
+		"message": "Pemasangan berhasil ditambahkan",
 		"data":    data,
 	})
 }
 
 func (c *controller) update(ctx *gin.Context) {
-	var body wardBody
+	var body installationBody
 	id := ctx.Param("id")
 
 	if isValid := validation.Bind(ctx, &body); !isValid {
@@ -85,7 +86,7 @@ func (c *controller) update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"message": "Kelurahan berhasil diperbarui"})
+	ctx.JSON(200, gin.H{"message": "Pemasangan berhasil diperbarui"})
 }
 
 func (c *controller) delete(ctx *gin.Context) {
@@ -96,5 +97,20 @@ func (c *controller) delete(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"message": "Kelurahan berhasil dihapus"})
+	ctx.JSON(200, gin.H{"message": "Pemasangan berhasil dihapus"})
+}
+
+func (c *controller) importData(ctx *gin.Context) {
+	var body importInstallationBody
+
+	if isValid := validation.Bind(ctx, &body); !isValid {
+		return
+	}
+
+	if err := c.service.importData(&body); err != nil {
+		response.ServiceError(ctx, err)
+		return
+	}
+
+	ctx.JSON(201, gin.H{"message": "Data pemasangan berhasil diimport"})
 }

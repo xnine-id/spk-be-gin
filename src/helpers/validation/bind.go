@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"github.com/amuhajirs/gin-gorm/src/helpers/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,15 +16,11 @@ func Bind(ctx *gin.Context, model interface{}) (isValid bool) {
 		}
 
 		if parsed := ParseUnmarshalError(err); parsed != nil {
-			ctx.AbortWithStatusJSON(500, gin.H{
-				"message": parsed,
-			})
+			response.Error(ctx, *parsed, 500)
 			return
 		}
 
-		ctx.AbortWithStatusJSON(500, gin.H{
-			"message": err.Error(),
-		})
+		response.Error(ctx, err.Error(), 500)
 		return 
 	}
 

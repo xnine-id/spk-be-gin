@@ -22,19 +22,19 @@ func NewRepository() Repository {
 }
 
 func (r *repository) find(result *pagination.Pagination[models.Store], qs *findStoreQs) error {
-	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%").Preload("Owner")
+	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%")
 
 	return result.Execute(&pagination.Params{
 		Query:     q,
 		Page:      qs.Page,
 		Limit:     qs.Limit,
-		Order:     qs.Order,
+		Order:     qs.Sort,
 		Direction: qs.Direction,
 	})
 }
 
 func (r *repository) findById(store *models.Store, id string) error {
-	return database.DB.Where("id = ?", id).Preload("Owner").First(store).Error
+	return database.DB.Where("id = ?", id).First(store).Error
 }
 
 func (r *repository) create(store *models.Store) error {

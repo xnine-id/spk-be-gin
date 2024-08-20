@@ -12,6 +12,7 @@ import (
 type FilePath struct {
 	Path string
 	Url  string
+	FullUrl  string
 }
 
 type FileName struct {
@@ -23,17 +24,6 @@ type Option struct {
 	Folder      string
 	File        *multipart.FileHeader
 	NewFilename string
-}
-
-func New(option *Option) (*FilePath, error) {
-	extracted := ExtractFileName(option.File.Filename)
-	filePath := UploadPath(fmt.Sprintf("%s/%s.%s", option.Folder, option.NewFilename, extracted.Ext))
-
-	if err := saveUploadedFile(option.File, filePath.Path); err != nil {
-		return nil, err
-	}
-
-	return filePath, nil
 }
 
 func ExtractFileName(filename string) *FileName {
@@ -59,11 +49,12 @@ func UploadPath(filename string) *FilePath {
 
 	return &FilePath{
 		Path: fmt.Sprintf("%s/%s", absPath, filename),
-		Url:  fmt.Sprintf("%s/public/uploads/%s", os.Getenv("BASE_URL"), filename),
+		FullUrl:  fmt.Sprintf("%s/public/uploads/%s", os.Getenv("BASE_URL"), filename),
+		Url:  fmt.Sprintf("/public/uploads/%s", filename),
 	}
 }
 
-func saveUploadedFile(file *multipart.FileHeader, dst string) error {
+func SaveUploadedFile(file *multipart.FileHeader, dst string) error {
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -82,4 +73,15 @@ func saveUploadedFile(file *multipart.FileHeader, dst string) error {
 
 	_, err = io.Copy(out, src)
 	return err
+}
+
+func New(option *Option) (*FilePath, error) {
+	extracted := ExtractFileName(option.File.Filename)
+	filePath := UploadPath(fmt.Sprintf("%s/%s.%s", option.Folder, option.NewFilename, extracted.Ext))
+
+	if err := SaveUploadedFile(option.File, filePath.Path); err != nil {
+		return nil, err
+	}
+
+	return filePath, nil
 }

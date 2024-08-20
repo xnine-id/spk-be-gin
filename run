@@ -120,24 +120,57 @@ function help() {
 
   # print lines with its content
   print_row "fresh" "drop all and recreate tables, use --seed to seeding after recreate tables"
+  print_row "drop" "drop all tables"
+  print_row "seed" "seeding data"
+  print_row "restore" "restore from dump to database"
 
   # print bottom line
   printf '=========++'; printf '=%.0s' $(seq $((right_length))); echo
 
 }
 
-function fresh() {
-  go run scripts/migrations/fresh.go
+function migrate() {
+  go run scripts/migration/migrate/migrate.go
 
   if [[ $1 = "--seed" ]]; then
-    echo "=============================="
-    echo "Seeding..."
-    go run scripts/seeder/seeder.go
+    seed
   fi
 }
 
+function drop() {
+  go run scripts/migration/drop/drop.go
+}
+
+function fresh() {
+  go run scripts/migration/fresh/fresh.go
+
+  if [[ $1 = "--seed" ]]; then
+    seed
+  fi
+}
+
+function seed() {
+  echo "=============================="
+  echo "Seeding..."
+  go run scripts/seeder/seeder.go
+}
+
+function restore() {
+  psql --username postgres --dbname spk -f src/database/dump/$1
+}
+
+
+
 if [[ $1 = "fresh" ]]; then
   fresh $2
+elif [[ $1 = "migrate" ]]; then
+  migrate $2
+elif [[ $1 = "drop" ]]; then
+  drop
+elif [[ $1 = "seed" ]]; then
+  seed
+elif [[ $1 = "restore" ]]; then
+  restore $2
 elif [[ $1 = "help" ]] || [[ $1 = "" ]]; then
   help
 else

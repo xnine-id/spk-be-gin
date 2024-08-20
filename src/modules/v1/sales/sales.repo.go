@@ -29,7 +29,7 @@ func (r *repository) find(result *pagination.Pagination[models.Sales], qs *findS
 		Query:     q,
 		Page:      qs.Page,
 		Limit:     qs.Limit,
-		Order:     qs.Order,
+		Order:     qs.Sort,
 		Direction: qs.Direction,
 	})
 }

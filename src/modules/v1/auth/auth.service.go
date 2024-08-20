@@ -69,10 +69,6 @@ func (s *service) refresh(body *refreshBody) (*userToken, error) {
 		return nil, customerror.New("Pengguna tidak ditemukan", 400)
 	}
 
-	// if time.Since(refreshToken.LastUsed) < config.App.Auth.AccessTokenExpiresIn {
-	// 	return nil, customerror.New("Belum bisa refresh token", 400)
-	// }
-
 	if time.Since(refreshToken.LastUsed) > config.App.Auth.RefreshTokenExpiresIn {
 		go s.repo.deleteTokenByToken(refreshToken.Token)
 		return nil, customerror.New("Refresh token kadaluarsa", 400)

@@ -22,13 +22,29 @@ func NewRepository() Repository {
 }
 
 func (r *repository) find(result *pagination.Pagination[models.Regency], qs *findRegencyQs) error {
-	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%").Preload("Province")
+	q := database.DB.
+		Table("mst_regencies mr").
+		Where("mr.name ILIKE ?", "%"+qs.Search+"%").
+		Joins("LEFT JOIN mst_provinces mp ON mp.id = mr.province_id")
+	
+	if qs.ProvinceId != "" {
+		q = q.Where("mp.id = ?", qs.ProvinceId)
+	}
+
+	switch qs.Sort {
+	case "name":
+		qs.Sort = "mr.name"
+	case "province":
+		qs.Sort = "mp.name"
+	}
+	
+	q = q.Preload("Province")
 
 	return result.Execute(&pagination.Params{
 		Query:     q,
 		Page:      qs.Page,
 		Limit:     qs.Limit,
-		Order:     qs.Order,
+		Order:     qs.Sort,
 		Direction: qs.Direction,
 	})
 }

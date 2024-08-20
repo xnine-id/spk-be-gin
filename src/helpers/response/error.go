@@ -2,6 +2,7 @@ package response
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/amuhajirs/gin-gorm/src/helpers/customerror"
 	"github.com/gin-gonic/gin"
@@ -11,9 +12,10 @@ func ServiceError(ctx *gin.Context, err error) {
 	if err != nil {
 		var customErr *customerror.CustomError
 		if errors.As(err, &customErr) {
-			ctx.JSON(customErr.StatusCode, gin.H{"message": customErr.Message})
+			Error(ctx, customErr.Message, customErr.StatusCode)
 		} else {
-			ctx.JSON(500, gin.H{"message": "Terjadi kesalahan"})
+			fmt.Println(err.Error())
+			Error(ctx, "Terjadi kesalahan", 500)
 		}
 	}
 }

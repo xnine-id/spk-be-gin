@@ -1,11 +1,11 @@
 package subdistrict
 
+import "github.com/amuhajirs/gin-gorm/src/helpers/pagination"
+
 type findSubdistrictQs struct {
-	Page      string `form:"page"`
-	Search    string `form:"search" mod:"trim"`
-	Limit     string `form:"limit"`
-	Order     string `form:"order"`
-	Direction string `form:"direction"`
+	pagination.QS
+	ProvinceId string `form:"province_id"`
+	RegencyId  string `form:"regency_id"`
 }
 
 type subdistrictBody struct {

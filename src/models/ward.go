@@ -7,5 +7,9 @@ type Ward struct {
 	Timestamps
 
 	// Relations
-	Subdistrict *Subdistrict `gorm:"foreignKey:subdistrict_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"subdistrict"`
+	Subdistrict *Subdistrict `gorm:"foreignKey:subdistrict_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"subdistrict,omitempty"`
+}
+
+func (Ward) TableName() string {
+	return "mst_wards"
 }

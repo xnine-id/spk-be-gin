@@ -67,10 +67,10 @@ func (s *service) create(body *createSalesBody) (*models.Sales, error) {
 	})
 
 	if err != nil {
-		customerror.New("Gagal saat menyimpan file", 500)
+		return nil, customerror.New("Gagal saat menyimpan file", 500)
 	}
 
-	sales.Photo = filePath.Path
+	sales.Photo = filePath.Url
 
 	if err := s.repo.save(&sales); err != nil {
 		return nil, customerror.GormError(err, "Sales")
@@ -86,22 +86,26 @@ func (s *service) update(body *updateSalesBody, id string) error {
 		return customerror.GormError(err, "Sales")
 	}
 
-	filePath, err := upload.New(&upload.Option{
-		Folder:      "sales",
-		File:        body.Photo,
-		NewFilename: strconv.FormatUint(uint64(*sales.Id), 10),
-	})
+	if body.Photo != nil {
+		filePath, err := upload.New(&upload.Option{
+			Folder:      "sales",
+			File:        body.Photo,
+			NewFilename: strconv.FormatUint(uint64(*sales.Id), 10),
+		})
+		
+		if err != nil {
+			return customerror.New("Gagal saat menyimpan file", 500)
+		}
 
-	if err != nil {
-		customerror.New("Gagal saat menyimpan file", 500)
+		sales.Photo = filePath.Path
 	}
+
 
 	sales.Name = body.Name
 	sales.Email = body.Email
 	sales.Phone = body.Phone
 	sales.Address = body.Address
 	sales.WardId = body.WardId
-	sales.Photo = filePath.Path
 
 	if err := s.repo.save(&sales); err != nil {
 		return customerror.GormError(err, "Sales")

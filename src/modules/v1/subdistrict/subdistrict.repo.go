@@ -22,19 +22,41 @@ func NewRepository() Repository {
 }
 
 func (r *repository) find(result *pagination.Pagination[models.Subdistrict], qs *findSubdistrictQs) error {
-	q := database.DB.Where("name ILIKE ?", "%"+qs.Search+"%").Preload("Regency.Province")
+	q := database.DB.
+		Table("mst_subdistricts ms").
+		Joins("LEFT JOIN mst_regencies mr ON mr.id = ms.regency_id").
+		Joins("LEFT JOIN mst_provinces mp ON mp.id = mr.province_id").
+		Where("ms.name ILIKE ?", "%"+qs.Search+"%").
+		Preload("Regency.Province")
+
+	if qs.ProvinceId != "" {
+		q = q.Where("mp.id = ?", qs.ProvinceId)
+	}
+
+	if qs.RegencyId != "" {
+		q = q.Where("mr.id = ?", qs.RegencyId)
+	}
+
+	switch qs.Sort {
+	case "name":
+		qs.Sort = "ms.name"
+	case "regency":
+		qs.Sort = "mr.name"
+	case "province":
+		qs.Sort = "mp.name"
+	}
 
 	return result.Execute(&pagination.Params{
 		Query:     q,
 		Page:      qs.Page,
 		Limit:     qs.Limit,
-		Order:     qs.Order,
+		Order:     qs.Sort,
 		Direction: qs.Direction,
 	})
 }
 
 func (r *repository) findById(subdistrict *models.Subdistrict, id string) error {
-	return database.DB.Where("id = ?", id).Preload("Regency").First(subdistrict).Error
+	return database.DB.Where("id = ?", id).Preload("Regency.Province").First(subdistrict).Error
 }
 
 func (r *repository) create(subdistrict *models.Subdistrict) error {

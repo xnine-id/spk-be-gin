@@ -7,5 +7,10 @@ type Regency struct {
 	Timestamps
 
 	// Relations
-	Province *Province `gorm:"foreignKey:province_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"province"`
+	Province     *Province      `gorm:"foreignKey:province_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"province,omitempty"`
+	Subdistricts *[]Subdistrict `gorm:"foreignKey:regency_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"subdistricts,omitempty"`
+}
+
+func (Regency) TableName() string {
+	return "mst_regencies"
 }
