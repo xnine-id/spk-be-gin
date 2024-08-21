@@ -69,9 +69,9 @@ func (s *service) create(body *installationBody) (*models.Installation, error) {
 	}
 
 	installation.SpkNumber = body.SpkNumber
-	installation.SpkDate = spkDate
+	installation.SpkDate = &spkDate
 	installation.StoreId = body.StoreId
-	installation.InstallationDate = installationDate
+	installation.InstallationDate = &installationDate
 	installation.SalesId = body.SalesId
 	installation.Status = *body.Status
 
@@ -100,9 +100,9 @@ func (s *service) update(body *installationBody, id string) error {
 	}
 
 	installation.SpkNumber = body.SpkNumber
-	installation.SpkDate = spkDate
+	installation.SpkDate = &spkDate
 	installation.StoreId = body.StoreId
-	installation.InstallationDate = installationDate
+	installation.InstallationDate = &installationDate
 	installation.SalesId = body.SalesId
 	installation.Status = *body.Status
 
@@ -184,7 +184,7 @@ func (s *service) importExcel(body *importInstallationBody) error {
 		}
 
 		inst.SpkNumber = row[columnMap["SpkNumber"]]
-		inst.SpkDate = spkDate
+		inst.SpkDate = &spkDate
         inst.StoreId = uint(storeId)
 
         installations = append(installations, inst)
@@ -239,7 +239,7 @@ func (s *service) importCsv(body *importInstallationBody) error {
 		}
 
 		inst.SpkNumber = record[columnMap["SpkNumber"]]
-		inst.SpkDate = spkDate
+		inst.SpkDate = &spkDate
         inst.StoreId = uint(storeId)
 
         installations = append(installations, inst)

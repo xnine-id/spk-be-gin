@@ -15,7 +15,7 @@ var Locale = map[string]string{
 	"owner_id":          "Pemilik",
 	"spk_number":        "Nomor SPK",
 	"spk_date":          "Tanggal SPK",
-	"store_id":          "ID Toko",
+	"store_id":          "Toko",
 	"installation_date": "Tanggal Pemasangan",
-	"sales_id":          "ID Sales",
+	"sales_id":          "Sales",
 }

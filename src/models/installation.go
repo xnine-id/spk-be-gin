@@ -4,12 +4,12 @@ import "time"
 
 type Installation struct {
 	PK
-	SpkNumber        string    `gorm:"type:varchar(50);unique;not null" json:"spk_number"`
-	SpkDate          time.Time `gorm:"type:date" json:"spk_date"`
-	StoreId          uint      `gorm:"type:bigint" json:"store_id"`
-	InstallationDate time.Time `gorm:"type:date" json:"installation_date"`
-	SalesId          uint      `gorm:"type:bigint" json:"sales_id"`
-	Status           bool      `gorm:"type:boolean;default:false;not null" json:"status"`
+	SpkNumber        string     `gorm:"type:varchar(50);unique;not null" json:"spk_number"`
+	SpkDate          *time.Time `gorm:"type:date" json:"spk_date"`
+	StoreId          uint       `gorm:"type:bigint" json:"store_id"`
+	InstallationDate *time.Time `gorm:"type:date" json:"installation_date"`
+	SalesId          uint       `gorm:"type:bigint" json:"sales_id"`
+	Status           bool       `gorm:"type:boolean;default:false;not null" json:"status"`
 	Timestamps
 
 	// Relations
