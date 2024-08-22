@@ -27,9 +27,19 @@ func NewRepository() Repository {
 
 func (r *repository) find(result *pagination.Pagination[models.Installation], qs *findInstallationQs) error {
 	q := database.DB.
-		Where("spk_number ILIKE ?", "%"+qs.Search+"%").
+		Table("trx_installations ti").
+		Joins("LEFT JOIN mst_sales msa ON msa.id = ti.sales_id").
+		Joins("LEFT JOIN mst_stores mst ON mst.id = ti.store_id").
+		Where("ti.spk_number ILIKE ?", "%"+qs.Search+"%").
 		Preload("Store").
 		Preload("Sales")
+
+	switch qs.Sort {
+	case "sales":
+		qs.Sort = "msa.name"
+	case "store":
+		qs.Sort = "mst.name"
+	}
 
 	return result.Execute(&pagination.Params{
 		Query:     q,

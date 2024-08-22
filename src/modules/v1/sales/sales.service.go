@@ -86,7 +86,7 @@ func (s *service) update(body *updateSalesBody, id string) error {
 		return customerror.GormError(err, "Sales")
 	}
 
-	if body.Photo != nil {
+	if body.Photo != nil && body.Photo.Size != 0 {
 		filePath, err := upload.New(&upload.Option{
 			Folder:      "sales",
 			File:        body.Photo,

@@ -43,8 +43,6 @@ func (r *repository) find(result *pagination.Pagination[models.Ward], qs *findWa
 	}
 
 	switch qs.Sort {
-	case "name":
-		qs.Sort = "mw.name"
 	case "subdistrict":
 		qs.Sort = "ms.name"
 	case "regency":
