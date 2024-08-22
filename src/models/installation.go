@@ -13,8 +13,9 @@ type Installation struct {
 	Timestamps
 
 	// Relations
-	Store *Store `gorm:"foreignKey:store_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"store,omitempty"`
-	Sales *Sales `gorm:"foreignKey:sales_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"sales,omitempty"`
+	Store  *Store               `gorm:"foreignKey:store_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"store,omitempty"`
+	Sales  *Sales               `gorm:"foreignKey:sales_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"sales,omitempty"`
+	Images *[]InstallationImage `gorm:"foreignKey:installation_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images,omitempty"`
 }
 
 func (Installation) TableName() string {

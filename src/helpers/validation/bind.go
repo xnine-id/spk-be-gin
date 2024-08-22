@@ -7,7 +7,7 @@ import (
 
 func Bind(ctx *gin.Context, model interface{}) (isValid bool) {
 	if err := ctx.ShouldBind(model); err != nil {
-		if parsed := ParseError(err); parsed != nil {
+		if parsed := ParseError(err, model); parsed != nil {
 			ctx.AbortWithStatusJSON(400, gin.H{
 				"errors":  &parsed,
 				"message": parsed[0].Msg,

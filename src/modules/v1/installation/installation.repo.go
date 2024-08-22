@@ -17,6 +17,8 @@ type Repository interface {
 	save(installation *models.Installation) error
 	delete(id string) error
 	importData(installations *[]models.Installation) error
+
+	saveImages(installationImgs *[]models.InstallationImage) error
 }
 
 type repository struct{}
@@ -32,7 +34,8 @@ func (r *repository) find(result *pagination.Pagination[models.Installation], qs
 		Joins("LEFT JOIN mst_stores mst ON mst.id = ti.store_id").
 		Where("ti.spk_number ILIKE ?", "%"+qs.Search+"%").
 		Preload("Store").
-		Preload("Sales")
+		Preload("Sales").
+		Preload("Images")
 
 	switch qs.Sort {
 	case "sales":
@@ -51,7 +54,12 @@ func (r *repository) find(result *pagination.Pagination[models.Installation], qs
 }
 
 func (r *repository) findById(installation *models.Installation, id string) error {
-	return database.DB.Where("id = ?", id).Preload("Store").Preload("Sales").First(installation).Error
+	return database.DB.
+		Where("id = ?", id).
+		Preload("Store").
+		Preload("Sales").
+		Preload("Images").
+		First(installation).Error
 }
 
 func (r *repository) save(installation *models.Installation) error {
@@ -89,4 +97,8 @@ func (r *repository) importData(installations *[]models.Installation) error {
 
 		return nil
 	})
+}
+
+func (r *repository) saveImages(installationImgs *[]models.InstallationImage) error {
+	return database.DB.Save(installationImgs).Error
 }

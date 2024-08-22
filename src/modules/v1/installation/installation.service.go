@@ -6,18 +6,22 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/amuhajirs/gin-gorm/src/database"
+	"github.com/amuhajirs/gin-gorm/src/helpers"
 	"github.com/amuhajirs/gin-gorm/src/helpers/customerror"
 	"github.com/amuhajirs/gin-gorm/src/helpers/pagination"
 	"github.com/amuhajirs/gin-gorm/src/helpers/upload"
+	"github.com/amuhajirs/gin-gorm/src/helpers/validation"
 	"github.com/amuhajirs/gin-gorm/src/models"
 	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 )
 
 type Service interface {
 	find(qs *findInstallationQs) (*pagination.Pagination[models.Installation], error)
 	findById(id string) (*models.Installation, error)
 	create(body *installationBody) (*models.Installation, error)
-	update(body *installationBody, id string) error
+	update(body *updateInstallationBody, id string) error
 	delete(id string) error
 
 	importData(body *importInstallationBody) error
@@ -56,58 +60,156 @@ func (s *service) findById(id string) (*models.Installation, error) {
 }
 
 func (s *service) create(body *installationBody) (*models.Installation, error) {
-	var installation models.Installation
-
+	// Validate date
 	spkDate, err := time.Parse(time.DateOnly, body.SpkDate)
 	if err != nil {
-		return nil, customerror.New("Format waktu tidak valid", 400)
+		return nil, customerror.New("Pastikan nilai pada kolom Tanggal SPK merupakan format tanggal yang valid (yyyy-mm-dd)", 400)
 	}
 
 	installationDate, err := time.Parse(time.DateOnly, body.InstallationDate)
 	if err != nil {
-		return nil, customerror.New("Format waktu tidak valid", 400)
+		return nil, customerror.New("Pastikan nilai pada kolom Tanggal Pemasangan merupakan format tanggal yang valid (yyyy-mm-dd)", 400)
 	}
 
-	installation.SpkNumber = body.SpkNumber
-	installation.SpkDate = &spkDate
-	installation.StoreId = body.StoreId
-	installation.InstallationDate = &installationDate
-	installation.SalesId = body.SalesId
-	installation.Status = *body.Status
+	// Validate images
+	for _, image := range body.Images {
+		fileName := upload.ExtractFileName(image.Filename)
 
-	if err := s.repo.save(&installation); err != nil {
-		return nil, customerror.GormError(err, "Pemasangan")
+		if found := helpers.Find(&validation.ImageExtensions, func(t *string) bool {
+			return fileName.Ext == *t
+		}); found == nil {
+			return nil, customerror.New("File harus berupa gambar", 400)
+		}
+	}
+
+	var installation models.Installation
+
+	if err := database.DB.Transaction(func(tx *gorm.DB) error {
+		installation.SpkNumber = body.SpkNumber
+		installation.SpkDate = &spkDate
+		installation.StoreId = body.StoreId
+		installation.InstallationDate = &installationDate
+		installation.SalesId = body.SalesId
+		installation.Status = *body.Status
+
+		if err := s.repo.save(&installation); err != nil {
+			return customerror.GormError(err, "Pemasangan")
+		}
+
+		var images []models.InstallationImage
+		for i, image := range body.Images {
+			file, err := upload.New(&upload.Option{
+				Folder:      "installation",
+				File:        image,
+				NewFilename: strconv.FormatUint(uint64(*installation.Id), 10) + "-" + strconv.Itoa(i+1),
+			})
+
+			if err != nil {
+				return customerror.New("Gagal saat mengupload file", 500)
+			}
+
+			images = append(images, models.InstallationImage{
+				InstallationId: *installation.Id,
+				Image:          file.Url,
+			})
+		}
+
+		if err := s.repo.saveImages(&images); err != nil {
+			return customerror.GormError(err, "Gambar Pemasangan")
+		}
+
+		installation.Images = &images
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	return &installation, nil
 }
 
-func (s *service) update(body *installationBody, id string) error {
+func (s *service) update(body *updateInstallationBody, id string) error {
 	var installation models.Installation
 
 	if err := s.repo.findById(&installation, id); err != nil {
 		return customerror.GormError(err, "Pemasangan")
 	}
 
+	// Validation date
 	spkDate, err := time.Parse(time.DateOnly, body.SpkDate)
 	if err != nil {
-		return customerror.New("Format waktu tidak valid", 400)
+		return customerror.New("Pastikan nilai pada kolom Tanggal SPK merupakan format tanggal yang valid (yyyy-mm-dd)", 400)
 	}
 
 	installationDate, err := time.Parse(time.DateOnly, body.InstallationDate)
 	if err != nil {
-		return customerror.New("Format waktu tidak valid", 400)
+		return customerror.New("Pastikan nilai pada kolom Tanggal Pemasangan merupakan format tanggal yang valid (yyyy-mm-dd)", 400)
 	}
 
-	installation.SpkNumber = body.SpkNumber
-	installation.SpkDate = &spkDate
-	installation.StoreId = body.StoreId
-	installation.InstallationDate = &installationDate
-	installation.SalesId = body.SalesId
-	installation.Status = *body.Status
+	// Validate images
+	for _, image := range body.Images {
+		fileName := upload.ExtractFileName(image.Filename)
 
-	if err := s.repo.save(&installation); err != nil {
-		return customerror.GormError(err, "Pemasangan")
+		if found := helpers.Find(&validation.ImageExtensions, func(t *string) bool {
+			return fileName.Ext == *t
+		}); found == nil {
+			return customerror.New("File harus berupa gambar", 400)
+		}
+	}
+
+	if err := database.DB.Transaction(func(tx *gorm.DB) error {
+		installation.SpkNumber = body.SpkNumber
+		installation.SpkDate = &spkDate
+		installation.StoreId = body.StoreId
+		installation.InstallationDate = &installationDate
+		installation.SalesId = body.SalesId
+		installation.Status = *body.Status
+
+		if err := s.repo.save(&installation); err != nil {
+			return customerror.GormError(err, "Pemasangan")
+		}
+
+		if len(body.Images) != 4 && len(*installation.Images) != 4 {
+			return customerror.New("Foto-foto harus diisi dan berjumlah 4", 400)
+		}
+
+		for i, image := range body.Images {
+			file, err := upload.New(&upload.Option{
+				Folder:      "installation",
+				File:        image,
+				NewFilename: strconv.FormatUint(uint64(*installation.Id), 10) + "-" + strconv.Itoa(i+1),
+			})
+
+			if err != nil {
+				return customerror.New("Gagal saat mengupload file", 500)
+			}
+
+			if installation.Images != nil && len(*installation.Images) == 4 {
+				for idx, currImage := range *installation.Images {
+					if *currImage.Id == body.ImageIds[i] {
+						(*installation.Images)[idx].Image = file.Url
+					}
+				}
+			} else {
+				if len(body.Images) != 4 {
+					return customerror.New("Jumlah file yang diunggah harus 4", 400)
+				}
+
+				*installation.Images = append(*installation.Images, models.InstallationImage{
+					InstallationId: *installation.Id,
+					Image: file.Url,
+				})
+			}
+		}
+
+		if len(body.Images) > 0 {
+			if err := s.repo.saveImages(installation.Images); err != nil {
+				return customerror.GormError(err, "Gambar Pemasangan")
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil
@@ -185,9 +287,9 @@ func (s *service) importExcel(body *importInstallationBody) error {
 
 		inst.SpkNumber = row[columnMap["SpkNumber"]]
 		inst.SpkDate = &spkDate
-        inst.StoreId = uint(storeId)
+		inst.StoreId = uint(storeId)
 
-        installations = append(installations, inst)
+		installations = append(installations, inst)
 	}
 
 	if err := s.repo.importData(&installations); err != nil {
@@ -214,7 +316,7 @@ func (s *service) importCsv(body *importInstallationBody) error {
 	}
 
 	// Map headers to struct fields based on ColumnMap
-    columnMap := mapHeadersToFields(headers, body.ColumnMap)
+	columnMap := mapHeadersToFields(headers, body.ColumnMap)
 
 	// Read the rest of the rows
 	records, err := reader.ReadAll()
@@ -240,9 +342,9 @@ func (s *service) importCsv(body *importInstallationBody) error {
 
 		inst.SpkNumber = record[columnMap["SpkNumber"]]
 		inst.SpkDate = &spkDate
-        inst.StoreId = uint(storeId)
+		inst.StoreId = uint(storeId)
 
-        installations = append(installations, inst)
+		installations = append(installations, inst)
 	}
 
 	if err := s.repo.importData(&installations); err != nil {
@@ -254,16 +356,16 @@ func (s *service) importCsv(body *importInstallationBody) error {
 
 // mapHeadersToFields creates a mapping between CSV headers and struct fields
 func mapHeadersToFields(headers []string, columnMap ColumnMap) map[string]int {
-    mapping := make(map[string]int)
-    for i, header := range headers {
-        switch header {
-        case columnMap.SpkNumber:
-            mapping["SpkNumber"] = i
-        case columnMap.SpkDate:
-            mapping["SpkDate"] = i
-        case columnMap.StoreId:
-            mapping["StoreId"] = i
-        }
-    }
-    return mapping
+	mapping := make(map[string]int)
+	for i, header := range headers {
+		switch header {
+		case columnMap.SpkNumber:
+			mapping["SpkNumber"] = i
+		case columnMap.SpkDate:
+			mapping["SpkDate"] = i
+		case columnMap.StoreId:
+			mapping["StoreId"] = i
+		}
+	}
+	return mapping
 }

@@ -12,4 +12,5 @@ var Tables = []any{
 	&models.Sales{},
 	&models.Store{},
 	&models.Installation{},
+	&models.InstallationImage{},
 }

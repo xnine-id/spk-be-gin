@@ -18,4 +18,5 @@ var Locale = map[string]string{
 	"store_id":          "Toko",
 	"installation_date": "Tanggal Pemasangan",
 	"sales_id":          "Sales",
+	"images":            "Foto-foto",
 }

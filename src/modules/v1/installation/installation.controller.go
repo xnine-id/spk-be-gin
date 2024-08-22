@@ -74,7 +74,7 @@ func (c *controller) create(ctx *gin.Context) {
 }
 
 func (c *controller) update(ctx *gin.Context) {
-	var body installationBody
+	var body updateInstallationBody
 	id := ctx.Param("id")
 
 	if isValid := validation.Bind(ctx, &body); !isValid {

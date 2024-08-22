@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/amuhajirs/gin-gorm/src/config"
@@ -22,7 +23,8 @@ func fieldToLocale(field string) string {
 	return strings.Join(words, " ")
 }
 
-func MsgForTag(tag string, field string, param string) string {
+func MsgForTag(tag string, field string, param string, dataType string) string {
+	fmt.Println(dataType)
 	intlField := fieldToLocale(field)
 
 	switch tag {
@@ -35,7 +37,11 @@ func MsgForTag(tag string, field string, param string) string {
 	case "max":
 		return intlField + " maximal " + param + " karakter"
 	case "len":
-		return intlField + " harus " + param + " karakter"
+		if dataType == "string" {
+			return intlField + " harus " + param + " karakter"
+		}
+
+		return "Jumlah file yang diunggah harus " + param
 	case "unique":
 		return intlField + " sudah digunakan"
 	case "numeric":
@@ -47,6 +53,8 @@ func MsgForTag(tag string, field string, param string) string {
 	case "oneof":
 		enum := strings.Join(strings.Split(param, " "), " atau ")
 		return intlField + " harus " + enum
+	case "image":
+		return intlField + " harus file gambar"
 	}
 	return ""
 }
